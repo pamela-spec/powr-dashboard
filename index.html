@@ -5,432 +5,334 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>POWR — Dashboard Socios</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <style>
-    :root {
-      --color-background-primary: #ffffff;
-      --color-background-secondary: #f5f5f0;
-      --color-background-tertiary: #eeede8;
-      --color-background-info: #e6f1fb;
-      --color-text-primary: #1a1a18;
-      --color-text-secondary: #5f5e5a;
-      --color-text-tertiary: #888780;
-      --color-text-info: #0c447c;
-      --color-border-tertiary: rgba(0,0,0,0.12);
-      --color-border-secondary: rgba(0,0,0,0.22);
-      --color-border-primary: rgba(0,0,0,0.35);
-      --border-radius-md: 8px;
-      --border-radius-lg: 12px;
-      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --color-background-primary: #1e1e1c;
-        --color-background-secondary: #2a2a27;
-        --color-background-tertiary: #252523;
-        --color-background-info: #0c2a47;
-        --color-text-primary: #f0efe9;
-        --color-text-secondary: #b4b2a9;
-        --color-text-tertiary: #888780;
-        --color-text-info: #85b7eb;
-        --color-border-tertiary: rgba(255,255,255,0.10);
-        --color-border-secondary: rgba(255,255,255,0.18);
-        --color-border-primary: rgba(255,255,255,0.28);
-      }
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: var(--font-sans);
-      background: var(--color-background-tertiary);
-      color: var(--color-text-primary);
-      min-height: 100vh;
-    }
-    .page { max-width: 900px; margin: 0 auto; padding: 20px 16px 40px; }
-
-    .hdr { padding: 16px 0 14px; border-bottom: 0.5px solid var(--color-border-tertiary); margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-    .brand { display: flex; align-items: center; gap: 10px; }
-    .brand-icon { width: 34px; height: 34px; border-radius: 9px; background: #185fa5; display: flex; align-items: center; justify-content: center; }
-    .brand-icon i { color: #fff; font-size: 17px; }
-    .bt p:first-child { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
-    .bt p:last-child { font-size: 11px; color: var(--color-text-tertiary); margin-top: 1px; }
-    .live-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: #0f6e56; background: #e1f5ee; padding: 3px 10px; border-radius: 20px; }
-    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #1d9e75; }
-
-    .filters { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 12px 14px; margin-bottom: 16px; }
-    .filter-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-    .filter-group { display: flex; align-items: center; gap: 6px; }
-    .filter-label { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); white-space: nowrap; text-transform: uppercase; letter-spacing: .04em; }
-    .fsel { font-size: 12px; padding: 5px 10px 5px 8px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); cursor: pointer; min-width: 110px; }
-    .finput { font-size: 12px; padding: 5px 8px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); width: 110px; }
-    .fclear { font-size: 11px; padding: 5px 10px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-secondary); cursor: pointer; display: flex; align-items: center; gap: 4px; margin-left: 4px; }
-    .fclear:hover { background: var(--color-background-secondary); }
-    .filter-sep { width: 0.5px; height: 20px; background: var(--color-border-secondary); margin: 0 4px; }
-    .filter-info { font-size: 11px; color: var(--color-text-tertiary); margin-top: 8px; padding-top: 8px; border-top: 0.5px solid var(--color-border-tertiary); }
-
-    .nav { display: flex; gap: 0; border-bottom: 0.5px solid var(--color-border-tertiary); margin-bottom: 16px; }
-    .nb { padding: 8px 16px; font-size: 13px; cursor: pointer; background: transparent; border: none; color: var(--color-text-secondary); border-bottom: 2px solid transparent; display: flex; align-items: center; gap: 5px; margin-bottom: -1px; }
-    .nb i { font-size: 14px; }
-    .nb.on { color: #185fa5; border-bottom-color: #185fa5; font-weight: 500; }
-    .nb:hover:not(.on) { color: var(--color-text-primary); }
-
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(115px, 1fr)); gap: 8px; margin-bottom: 16px; }
-    .kc { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 12px 14px; }
-    .kc.ag { border-left: 3px solid #1d9e75; border-radius: 0 var(--border-radius-lg) var(--border-radius-lg) 0; padding-left: 11px; }
-    .kc.ar { border-left: 3px solid #a32d2d; border-radius: 0 var(--border-radius-lg) var(--border-radius-lg) 0; padding-left: 11px; }
-    .kc.ab { border-left: 3px solid #ba7517; border-radius: 0 var(--border-radius-lg) var(--border-radius-lg) 0; padding-left: 11px; }
-    .kl { font-size: 10px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 3px; }
-    .kv { font-size: 22px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
-    .kv.g { color: #0f6e56; } .kv.r { color: #a32d2d; } .kv.b { color: #185fa5; }
-    .ks { font-size: 10px; color: var(--color-text-tertiary); margin-top: 2px; }
-    .kpill { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 20px; font-size: 10px; font-weight: 500; }
-    .kg { background: #eaf3de; color: #27500a; } .kr { background: #fcebeb; color: #791f1f; } .ka { background: #faeeda; color: #633806; }
-
-    .sh { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
-    .st { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); display: flex; align-items: center; gap: 5px; }
-    .st i { font-size: 14px; }
-    .tgw { display: flex; background: var(--color-background-secondary); border-radius: 20px; padding: 2px; gap: 2px; }
-    .tg { padding: 3px 10px; border-radius: 18px; font-size: 11px; cursor: pointer; background: transparent; border: none; color: var(--color-text-secondary); }
-    .tg.on { background: var(--color-background-primary); color: var(--color-text-primary); font-weight: 500; border: 0.5px solid var(--color-border-secondary); }
-    .leg { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
-    .leg span { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--color-text-secondary); }
-    .ld { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
-    .ll { width: 16px; height: 3px; border-radius: 2px; flex-shrink: 0; }
-    .cw { position: relative; width: 100%; }
-    .dg { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 14px; }
-    .dc { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 12px 14px; }
-    .dt { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 8px; display: flex; align-items: center; gap: 4px; }
-    .dt i { font-size: 13px; }
-    .dl { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
-    .dl span { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--color-text-secondary); }
-    .dl .dv { margin-left: auto; font-size: 11px; font-weight: 500; color: var(--color-text-primary); }
-    .divhr { height: 0.5px; background: var(--color-border-tertiary); margin: 14px 0; }
-    .tw { overflow-x: auto; border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); }
-    table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    th { padding: 9px 12px; border-bottom: 0.5px solid var(--color-border-secondary); color: var(--color-text-secondary); font-weight: 500; text-align: left; background: var(--color-background-secondary); white-space: nowrap; }
-    td { padding: 8px 12px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); white-space: nowrap; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: var(--color-background-secondary); }
-    .note { font-size: 10px; color: var(--color-text-tertiary); margin-top: 8px; }
-    .db-wrap { display: flex; gap: 4px; }
-    .db { padding: 4px 10px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); font-size: 11px; cursor: pointer; background: transparent; color: var(--color-text-secondary); }
-    .db.on { background: #e6f1fb; color: #0c447c; border-color: #185fa5; font-weight: 500; }
-    .empty { padding: 2rem; text-align: center; color: var(--color-text-tertiary); font-size: 13px; }
+    :root{--bg1:#fff;--bg2:#f5f5f0;--bg3:#eeeee9;--tx1:#1a1a18;--tx2:#5f5e5a;--tx3:#888780;--bd1:rgba(0,0,0,.35);--bd2:rgba(0,0,0,.22);--bd3:rgba(0,0,0,.12);--rm:8px;--rl:12px}
+    @media(prefers-color-scheme:dark){:root{--bg1:#1e1e1c;--bg2:#2a2a27;--bg3:#252523;--tx1:#f0efe9;--tx2:#b4b2a9;--tx3:#888780;--bd1:rgba(255,255,255,.28);--bd2:rgba(255,255,255,.18);--bd3:rgba(255,255,255,.10)}}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg3);color:var(--tx1);min-height:100vh}
+    .page{max-width:920px;margin:0 auto;padding:20px 16px 40px}
+    .hdr{padding:14px 0 12px;border-bottom:.5px solid var(--bd3);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+    .brand{display:flex;align-items:center;gap:10px}
+    .bi{width:34px;height:34px;border-radius:9px;background:#185fa5;display:flex;align-items:center;justify-content:center}
+    .bi i{color:#fff;font-size:17px}
+    .bt p:first-child{font-size:15px;font-weight:500;color:var(--tx1)}
+    .bt p:last-child{font-size:11px;color:var(--tx3);margin-top:1px}
+    .lp{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#0f6e56;background:#e1f5ee;padding:3px 10px;border-radius:20px}
+    .ld0{width:6px;height:6px;border-radius:50%;background:#1d9e75}
+    .fil{background:var(--bg2);border-radius:var(--rl);padding:12px 14px;margin-bottom:14px}
+    .fr{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+    .fr+.fr{margin-top:8px}
+    .fl{font-size:11px;font-weight:500;color:var(--tx2);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
+    .fs{font-size:12px;padding:5px 8px;border-radius:var(--rm);border:.5px solid var(--bd2);background:var(--bg1);color:var(--tx1);cursor:pointer;min-width:108px}
+    .fi{font-size:12px;padding:5px 8px;border-radius:var(--rm);border:.5px solid var(--bd2);background:var(--bg1);color:var(--tx1);width:108px}
+    .fc{font-size:11px;padding:5px 10px;border-radius:var(--rm);border:.5px solid var(--bd2);background:transparent;color:var(--tx2);cursor:pointer;display:flex;align-items:center;gap:4px}
+    .sep{width:.5px;height:20px;background:var(--bd2);margin:0 2px}
+    .fi-info{font-size:11px;color:var(--tx3);margin-top:6px;padding-top:6px;border-top:.5px solid var(--bd3)}
+    .nav{display:flex;border-bottom:.5px solid var(--bd3);margin-bottom:14px}
+    .nb{padding:7px 14px;font-size:13px;cursor:pointer;background:transparent;border:none;color:var(--tx2);border-bottom:2px solid transparent;display:flex;align-items:center;gap:5px;margin-bottom:-1px}
+    .nb i{font-size:13px}
+    .nb.on{color:#185fa5;border-bottom-color:#185fa5;font-weight:500}
+    .kg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:14px}
+    .kc{background:var(--bg1);border:.5px solid var(--bd3);border-radius:var(--rl);padding:11px 13px}
+    .kc.ag{border-left:3px solid #1d9e75;border-radius:0 var(--rl) var(--rl) 0;padding-left:10px}
+    .kc.ar{border-left:3px solid #a32d2d;border-radius:0 var(--rl) var(--rl) 0;padding-left:10px}
+    .kc.ab{border-left:3px solid #ba7517;border-radius:0 var(--rl) var(--rl) 0;padding-left:10px}
+    .kl{font-size:10px;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+    .kv{font-size:21px;font-weight:500;color:var(--tx1);line-height:1}
+    .kv.g{color:#0f6e56}.kv.r{color:#a32d2d}.kv.b{color:#185fa5}
+    .ks{font-size:10px;color:var(--tx3);margin-top:2px}
+    .pill{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500}
+    .pg{background:#eaf3de;color:#27500a}.pr{background:#fcebeb;color:#791f1f}.pa{background:#faeeda;color:#633806}
+    .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;flex-wrap:wrap;gap:6px}
+    .st{font-size:12px;font-weight:500;color:var(--tx2);display:flex;align-items:center;gap:5px}
+    .st i{font-size:13px}
+    .tgw{display:flex;background:var(--bg2);border-radius:20px;padding:2px;gap:2px}
+    .tg{padding:3px 10px;border-radius:18px;font-size:11px;cursor:pointer;background:transparent;border:none;color:var(--tx2)}
+    .tg.on{background:var(--bg1);color:var(--tx1);font-weight:500;border:.5px solid var(--bd2)}
+    .leg{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:7px}
+    .leg span{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--tx2)}
+    .ld{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+    .ll{width:16px;height:3px;border-radius:2px;flex-shrink:0}
+    .cw{position:relative;width:100%}
+    .dg{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px;margin-top:12px}
+    .dc{background:var(--bg1);border:.5px solid var(--bd3);border-radius:var(--rl);padding:11px 13px}
+    .dt{font-size:11px;font-weight:500;color:var(--tx2);margin-bottom:7px;display:flex;align-items:center;gap:4px}
+    .dt i{font-size:13px}
+    .dl{display:flex;flex-direction:column;gap:4px;margin-top:5px}
+    .dl span{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx2)}
+    .dl .dv{margin-left:auto;font-size:11px;font-weight:500;color:var(--tx1)}
+    .hr{height:.5px;background:var(--bd3);margin:13px 0}
+    .tw{overflow-x:auto;border-radius:var(--rl);border:.5px solid var(--bd3)}
+    table{width:100%;border-collapse:collapse;font-size:12px}
+    th{padding:8px 11px;border-bottom:.5px solid var(--bd2);color:var(--tx2);font-weight:500;text-align:left;background:var(--bg2);white-space:nowrap}
+    td{padding:7px 11px;border-bottom:.5px solid var(--bd3);color:var(--tx1);white-space:nowrap}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:var(--bg2)}
+    .note{font-size:10px;color:var(--tx3);margin-top:7px}
+    .dbw{display:flex;gap:4px}
+    .db{padding:4px 10px;border-radius:var(--rm);border:.5px solid var(--bd2);font-size:11px;cursor:pointer;background:transparent;color:var(--tx2)}
+    .db.on{background:#e6f1fb;color:#0c447c;border-color:#185fa5;font-weight:500}
   </style>
 </head>
 <body>
 <div class="page">
-
   <div class="hdr">
     <div class="brand">
-      <div class="brand-icon"><i class="ti ti-chart-bar"></i></div>
-      <div class="bt">
-        <p>POWR — socios</p>
-        <p>Rio Mixcoac</p>
-      </div>
+      <div class="bi"><i class="ti ti-chart-bar"></i></div>
+      <div class="bt"><p>POWR — socios</p><p>Rio Mixcoac</p></div>
     </div>
-    <span class="live-pill"><span class="live-dot"></span>En vivo · Jun 2026</span>
+    <span class="lp"><span class="ld0"></span>En vivo · Jun 2026</span>
   </div>
 
-  <div class="filters">
-    <div class="filter-row">
-      <div class="filter-group">
-        <span class="filter-label">Desde</span>
-        <input class="finput" type="date" id="fDesde" value="2025-03-01">
+  <div class="fil">
+    <div class="fr">
+      <div style="display:flex;align-items:center;gap:6px"><span class="fl">Desde</span><input class="fi" type="date" id="fD"></div>
+      <div style="display:flex;align-items:center;gap:6px"><span class="fl">Hasta</span><input class="fi" type="date" id="fH"></div>
+      <span class="sep"></span>
+      <div style="display:flex;align-items:center;gap:6px"><span class="fl">Plan</span>
+        <select class="fs" id="fP"><option value="">Todos</option><option value="Básico">Básico</option><option value="Resultados">Resultados</option></select>
       </div>
-      <div class="filter-group">
-        <span class="filter-label">Hasta</span>
-        <input class="finput" type="date" id="fHasta" value="2026-05-31">
+      <div style="display:flex;align-items:center;gap:6px"><span class="fl">Frecuencia</span>
+        <select class="fs" id="fC"><option value="">Todas</option><option value="MENSUAL">Mensual</option><option value="SEMESTRAL">Semestral</option><option value="ANUAL">Anual</option><option value="TRIMESTRAL">Trimestral</option><option value="BIMESTRAL">Bimestral</option></select>
       </div>
-      <span class="filter-sep"></span>
-      <div class="filter-group">
-        <span class="filter-label">Plan</span>
-        <select class="fsel" id="fPlan">
-          <option value="">Todos</option>
-          <option value="Básico">Básico</option>
-          <option value="Resultados">Resultados</option>
-        </select>
+      <div style="display:flex;align-items:center;gap:6px"><span class="fl">Forma de pago</span>
+        <select class="fs" id="fG"><option value="">Todas</option><option value="Tarjeta">Tarjeta</option><option value="OpenPay Recurrente">OpenPay</option><option value="Caja">Caja</option></select>
       </div>
-      <div class="filter-group">
-        <span class="filter-label">Frecuencia</span>
-        <select class="fsel" id="fCuota">
-          <option value="">Todas</option>
-          <option value="MENSUAL">Mensual</option>
-          <option value="SEMESTRAL">Semestral</option>
-          <option value="ANUAL">Anual</option>
-          <option value="TRIMESTRAL">Trimestral</option>
-          <option value="BIMESTRAL">Bimestral</option>
-        </select>
+      <div style="display:flex;align-items:center;gap:6px"><span class="fl">Estado</span>
+        <select class="fs" id="fE"><option value="">Todos</option><option value="ACTIVO">Activo</option><option value="BAJA">Baja</option><option value="AUSENTE">Ausente</option></select>
       </div>
-      <div class="filter-group">
-        <span class="filter-label">Forma de pago</span>
-        <select class="fsel" id="fPago">
-          <option value="">Todas</option>
-          <option value="Tarjeta">Tarjeta</option>
-          <option value="OpenPay Recurrente">OpenPay</option>
-          <option value="Caja">Caja</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <span class="filter-label">Estado</span>
-        <select class="fsel" id="fEstado">
-          <option value="">Todos</option>
-          <option value="ACTIVO">Activo</option>
-          <option value="BAJA">Baja</option>
-          <option value="AUSENTE">Ausente</option>
-        </select>
-      </div>
-      <button class="fclear" onclick="clearFilters()"><i class="ti ti-x" style="font-size:11px"></i>Limpiar</button>
+      <button class="fc" onclick="clrF()"><i class="ti ti-x" style="font-size:11px"></i>Limpiar</button>
     </div>
-    <div class="filter-info" id="filterInfo"></div>
+    <div class="fi-info" id="fInfo"></div>
   </div>
 
   <div class="nav">
-    <button class="nb on" id="t-resumen" onclick="show('resumen')"><i class="ti ti-layout-dashboard"></i>Resumen</button>
-    <button class="nb" id="t-mensual" onclick="show('mensual')"><i class="ti ti-trending-up"></i>Mensual</button>
-    <button class="nb" id="t-mix" onclick="show('mix')"><i class="ti ti-chart-donut"></i>Mix</button>
-    <button class="nb" id="t-tabla" onclick="show('tabla')"><i class="ti ti-table"></i>Tabla</button>
+    <button class="nb on" id="t-r" onclick="show('r')"><i class="ti ti-layout-dashboard"></i>Resumen</button>
+    <button class="nb" id="t-m" onclick="show('m')"><i class="ti ti-trending-up"></i>Mensual</button>
+    <button class="nb" id="t-x" onclick="show('x')"><i class="ti ti-chart-donut"></i>Mix</button>
+    <button class="nb" id="t-t" onclick="show('t')"><i class="ti ti-table"></i>Tabla</button>
   </div>
 
-  <div id="v-resumen">
-    <div class="kpi-grid" id="kpis-r"></div>
+  <div id="v-r">
+    <div class="kg-grid" id="kpis"></div>
     <div class="sh">
       <span class="st"><i class="ti ti-chart-bar"></i>Altas y bajas por mes</span>
-      <div class="tgw"><button class="tg on" id="tg-rn" onclick="setT('r','n')">Número</button><button class="tg" id="tg-rp" onclick="setT('r','p')">Porcentaje</button></div>
+      <div class="tgw"><button class="tg on" id="rn" onclick="sT('r','n')">Número</button><button class="tg" id="rp" onclick="sT('r','p')">Porcentaje</button></div>
     </div>
     <div class="leg"><span><span class="ld" style="background:#b5d4f4"></span>Altas</span><span><span class="ld" style="background:#f7c1c1"></span>Bajas</span><span><span class="ll" style="background:#1d9e75"></span>Acumulado</span></div>
-    <div class="cw" style="height:240px"><canvas id="cR"></canvas></div>
-    <div class="dg" id="donuts-r"></div>
+    <div class="cw" style="height:230px"><canvas id="cR"></canvas></div>
+    <div class="dg" id="dnR"></div>
   </div>
 
-  <div id="v-mensual" style="display:none">
+  <div id="v-m" style="display:none">
     <div class="sh">
       <span class="st"><i class="ti ti-trending-up"></i>Altas, bajas y neto</span>
-      <div class="tgw"><button class="tg on" id="tg-mn" onclick="setT('m','n')">Número</button><button class="tg" id="tg-mp" onclick="setT('m','p')">Porcentaje</button></div>
+      <div class="tgw"><button class="tg on" id="mn" onclick="sT('m','n')">Número</button><button class="tg" id="mp" onclick="sT('m','p')">Porcentaje</button></div>
     </div>
     <div class="leg"><span><span class="ld" style="background:#b5d4f4"></span>Altas</span><span><span class="ld" style="background:#f7c1c1"></span>Bajas</span><span><span class="ll" style="background:#1d9e75"></span>Neto</span></div>
-    <div class="cw" style="height:250px"><canvas id="cM"></canvas></div>
-    <div class="divhr"></div>
-    <div class="sh" style="margin-bottom:8px"><span class="st"><i class="ti ti-shield-check"></i>Retención mensual</span></div>
-    <div class="cw" style="height:160px"><canvas id="cRet"></canvas></div>
+    <div class="cw" style="height:240px"><canvas id="cM"></canvas></div>
+    <div class="hr"></div>
+    <div class="sh" style="margin-bottom:7px"><span class="st"><i class="ti ti-shield-check"></i>Retención mensual</span></div>
+    <div class="cw" style="height:155px"><canvas id="cRet"></canvas></div>
   </div>
 
-  <div id="v-mix" style="display:none">
+  <div id="v-x" style="display:none">
     <div class="sh">
       <span class="st"><i class="ti ti-stack"></i>Evolución 100% apilado</span>
-      <div class="db-wrap">
-        <button class="db on" id="dim-plan" onclick="setDim('plan')">Plan</button>
-        <button class="db" id="dim-cuota" onclick="setDim('cuota')">Frecuencia</button>
-        <button class="db" id="dim-pago" onclick="setDim('pago')">Pago</button>
-      </div>
+      <div class="dbw"><button class="db on" id="dp" onclick="sDim('plan')">Plan</button><button class="db" id="dc" onclick="sDim('cuota')">Frecuencia</button><button class="db" id="dg" onclick="sDim('pago')">Pago</button></div>
     </div>
-    <div class="leg" id="lStack" style="margin-bottom:8px"></div>
-    <div class="cw" style="height:250px"><canvas id="cStack"></canvas></div>
-    <div class="dg" id="donuts-m"></div>
+    <div class="leg" id="lSt" style="margin-bottom:7px"></div>
+    <div class="cw" style="height:240px"><canvas id="cSt"></canvas></div>
+    <div class="dg" id="dnX"></div>
   </div>
 
-  <div id="v-tabla" style="display:none">
+  <div id="v-t" style="display:none">
     <div class="sh">
       <span class="st"><i class="ti ti-table"></i>Detalle mensual</span>
-      <span id="tbl-sub" style="font-size:11px;color:var(--color-text-tertiary)"></span>
+      <span id="tSub" style="font-size:11px;color:var(--tx3)"></span>
     </div>
-    <div class="tw"><table id="tblMain"></table></div>
+    <div class="tw"><table id="tbl"></table></div>
     <p class="note">* Retención = 1 − (bajas del mes / altas del mes)</p>
   </div>
-
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-<script>
-
 const ROWS=[{"mes":"2025-03","fecha":"2025-03-27","plan":"Resultados","cuota":"MENSUAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-06","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-03","fecha":"2025-03-31","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-03","fecha":"2025-03-31","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-04","fecha":"2025-04-02","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-04","fecha":"2025-04-02","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-04","fecha":"2025-04-03","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-04","fecha":"2025-04-07","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-04","fecha":"2025-04-07","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-04","fecha":"2025-04-08","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-04","fecha":"2025-04-08","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-04","fecha":"2025-04-09","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-04","fecha":"2025-04-09","plan":"Básico","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-04","fecha":"2025-04-10","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-04","fecha":"2025-04-21","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-04","fecha":"2025-04-21","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-04","fecha":"2025-04-22","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-04","fecha":"2025-04-22","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-04","fecha":"2025-04-23","plan":"Básico","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-04","fecha":"2025-04-23","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-04","fecha":"2025-04-23","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-04","fecha":"2025-04-23","plan":"Básico","cuota":"MENSUAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-04","fecha":"2025-04-23","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-04","fecha":"2025-04-24","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-04","fecha":"2025-04-25","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-04","fecha":"2025-04-25","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-11","fecha":"2025-11-24","plan":"Básico","cuota":"MENSUAL","pago":"Caja","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-24","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-25","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-26","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-27","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-27","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-27","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-11","fecha":"2025-11-29","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-29","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-29","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-30","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-01","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-01","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-01","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-01","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-02","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-02","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-02","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-02","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-02","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-03","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-03","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-04","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-08","plan":"Básico","cuota":"SEMESTRAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-08","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-10","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-10","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-11","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-12","plan":"Resultados","cuota":"SEMESTRAL","pago":"Caja","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-12","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-12","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-15","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-15","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-15","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-15","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-15","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-15","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-15","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-15","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-05","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-05","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-05","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-05","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-06","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-06","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-06","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-07","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-07","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-07","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-07","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-07","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-07","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-08","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-09","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-09","plan":"Básico","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-09","plan":"Básico","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-09","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-10","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-10","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-10","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-10","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-12","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-12","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-13","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-13","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-13","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-13","plan":"Resultados","cuota":"MENSUAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-14","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-15","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-15","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-18","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-18","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-18","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-18","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-18","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-18","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-19","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-19","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-19","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-19","plan":"Básico","cuota":"MENSUAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-20","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-20","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-20","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-20","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-20","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-20","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-15","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-21","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-17","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-23","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-23","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-24","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-28","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-29","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-31","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-31","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-06","fecha":"2025-06-01","plan":"Básico","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-06","fecha":"2025-06-02","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-20","plan":"Básico","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-06","fecha":"2025-06-03","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-06","fecha":"2025-06-03","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-06","fecha":"2025-06-04","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-06","fecha":"2025-06-04","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-06","fecha":"2025-06-06","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-06","fecha":"2025-06-09","plan":"Resultados","cuota":"BIMESTRAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-06","fecha":"2025-06-09","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-06","fecha":"2025-06-04","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-06","fecha":"2025-06-10","plan":"Resultados","cuota":"MENSUAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-06","fecha":"2025-06-11","plan":"Básico","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-06","fecha":"2025-06-09","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-06","fecha":"2025-06-13","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-06","fecha":"2025-06-15","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-06","fecha":"2025-06-15","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-06","fecha":"2025-06-11","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-06","fecha":"2025-06-16","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-06","fecha":"2025-06-18","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-06","fecha":"2025-06-18","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-06","fecha":"2025-06-23","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-06","fecha":"2025-06-25","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-06","fecha":"2025-06-26","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-06","fecha":"2025-06-26","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-06","fecha":"2025-06-27","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-06","fecha":"2025-06-27","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-06","fecha":"2025-06-18","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-06","fecha":"2025-06-16","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-06","fecha":"2025-06-28","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-06","fecha":"2025-06-28","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-06","fecha":"2025-06-29","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-06","fecha":"2025-06-29","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-06","fecha":"2025-06-29","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-17","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-26","plan":"Resultados","cuota":"ANUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-06","fecha":"2025-06-30","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-06","fecha":"2025-06-30","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-05","fecha":"2025-05-22","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-06","fecha":"2025-06-30","plan":"Básico","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-05","fecha":"2025-05-26","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-01","plan":"Básico","cuota":"TRIMESTRAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-07","fecha":"2025-07-01","plan":"Básico","cuota":"TRIMESTRAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-07","fecha":"2025-07-01","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-01","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-02","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-02","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-02","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-07","fecha":"2025-07-02","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-02","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-07","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-07","plan":"Básico","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-07","fecha":"2025-07-08","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-09","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-09","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-09","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-10","plan":"Resultados","cuota":"MENSUAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-07","fecha":"2025-07-10","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-12","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-13","plan":"Resultados","cuota":"TRIMESTRAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-07","fecha":"2025-07-14","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-07","fecha":"2025-07-14","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-15","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-15","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-15","plan":"Básico","cuota":"MENSUAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-07","fecha":"2025-07-15","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-07","fecha":"2025-07-15","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-22","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-18","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-07","fecha":"2025-07-19","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-06","fecha":"2025-06-20","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-06","fecha":"2025-06-20","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-22","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-23","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-23","plan":"Básico","cuota":"TRIMESTRAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-07","fecha":"2025-07-23","plan":"Básico","cuota":"TRIMESTRAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-07","fecha":"2025-07-24","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-28","plan":"Básico","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-07","fecha":"2025-07-29","plan":"Básico","cuota":"ANUAL","pago":"N/A","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-29","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-29","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-29","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-07","fecha":"2025-07-29","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-07","fecha":"2025-07-30","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-30","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-30","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-01","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-02","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-03","plan":"Ausencia","cuota":"MENSUAL","pago":"Tarjeta","estado":"AUSENTE"},{"mes":"2025-08","fecha":"2025-08-05","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-06","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-06","plan":"Básico","cuota":"ANUAL","pago":"Caja","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-07","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-08","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-11","plan":"Básico","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-12","plan":"Básico","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-12","plan":"Básico","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-12","plan":"Resultados","cuota":"TRIMESTRAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-12","plan":"Resultados","cuota":"TRIMESTRAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-13","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-13","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-13","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-14","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-14","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-14","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-15","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-15","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-16","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-18","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-18","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-18","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-19","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-19","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-20","plan":"Resultados","cuota":"TRIMESTRAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-20","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-20","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-18","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-23","plan":"Resultados","cuota":"SEMESTRAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-23","plan":"Resultados","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-25","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-25","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-25","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-26","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-26","plan":"Resultados","cuota":"TRIMESTRAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-27","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-27","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-28","plan":"Básico","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-29","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-08","fecha":"2025-08-29","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-29","plan":"Básico","cuota":"ANUAL","pago":"N/A","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-29","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-30","plan":"Básico","cuota":"SEMESTRAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-30","plan":"Básico","cuota":"SEMESTRAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-08","fecha":"2025-08-30","plan":"Básico","cuota":"SEMESTRAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-01","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-01","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-01","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-01","plan":"Básico","cuota":"TRIMESTRAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-01","plan":"Básico","cuota":"TRIMESTRAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-03","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-03","plan":"Básico","cuota":"TRIMESTRAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-03","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-04","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-04","plan":"Básico","cuota":"MENSUAL","pago":"Caja","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-05","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-05","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-07","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-08","plan":"Básico","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-08","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-08","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-09","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-10","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-10","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-10","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-10","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-10","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-18","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-12","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-13","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-13","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-13","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-14","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-14","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-14","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-14","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-16","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-17","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-18","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-21","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-21","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-21","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-22","plan":"Básico","cuota":"ANUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-22","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-22","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-22","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-22","plan":"Resultados","cuota":"TRIMESTRAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-23","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-24","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-24","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-25","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-26","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-26","plan":"Resultados","cuota":"MENSUAL","pago":"N/A","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-29","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-30","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-30","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-30","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-30","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-09","fecha":"2025-09-30","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-30","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-02","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-04","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-10","fecha":"2025-10-04","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-10","fecha":"2025-10-04","plan":"Resultados","cuota":"ANUAL","pago":"Caja","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-04","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-08","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-10","fecha":"2025-10-10","plan":"Básico","cuota":"SEMESTRAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-12","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-12","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-19","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-13","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-10","fecha":"2025-10-13","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-10","fecha":"2025-10-13","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-13","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-14","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-10","fecha":"2025-10-14","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-14","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-14","plan":"Resultados","cuota":"SEMESTRAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-10","fecha":"2025-10-14","plan":"Resultados","cuota":"SEMESTRAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-10","fecha":"2025-10-15","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-10","fecha":"2025-10-17","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-10","fecha":"2025-10-19","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"BAJA"},{"mes":"2025-10","fecha":"2025-10-19","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-20","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-10","fecha":"2025-10-20","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-20","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-10","fecha":"2025-10-20","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-10","fecha":"2025-10-20","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-10","fecha":"2025-10-21","plan":"Resultados","cuota":"SEMESTRAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-10","fecha":"2025-10-22","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-10","fecha":"2025-10-21","plan":"Resultados","cuota":"SEMESTRAL","pago":"Caja","estado":"BAJA"},{"mes":"2025-10","fecha":"2025-10-21","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-10","fecha":"2025-10-21","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-21","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-27","plan":"Resultados","cuota":"SEMESTRAL","pago":"Caja","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-27","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-10","fecha":"2025-10-27","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-28","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-28","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-27","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-10","fecha":"2025-10-29","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-29","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-29","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-29","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-30","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-10","fecha":"2025-10-30","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-02","plan":"Resultados","cuota":"SEMESTRAL","pago":"Caja","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-02","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-03","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-03","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-03","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-04","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-19","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-08","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-11","fecha":"2025-11-10","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-11","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-11","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-11","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-11","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-11","fecha":"2025-11-12","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-11","fecha":"2025-11-12","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-11","fecha":"2025-11-12","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-11","fecha":"2025-11-12","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-11","fecha":"2025-11-12","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-11","fecha":"2025-11-13","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-11","fecha":"2025-11-13","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-01","fecha":"2026-01-02","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-15","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-11","fecha":"2025-11-15","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-16","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-16","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-16","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-17","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-11","fecha":"2025-11-17","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-11","fecha":"2025-11-17","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-11","fecha":"2025-11-18","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-18","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-11","fecha":"2025-11-18","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-11","fecha":"2025-11-18","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-11","fecha":"2025-11-18","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-11","fecha":"2025-11-20","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-11","fecha":"2025-11-20","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-22","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-22","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-22","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-22","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-23","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-24","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-26","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-26","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-26","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-26","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-12","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-28","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-28","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-30","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-30","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-30","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-31","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2025-12","fecha":"2025-12-31","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-02","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-04","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-04","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-12","fecha":"2025-12-12","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-01","fecha":"2026-01-05","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-06","plan":"Resultados","cuota":"SEMESTRAL","pago":"Caja","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-06","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-08","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-01","fecha":"2026-01-08","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-11","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-01","fecha":"2026-01-10","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-12","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-12","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-12","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-12","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-12","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-13","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-13","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-13","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-14","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-02","fecha":"2026-02-13","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-14","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-14","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-14","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-14","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-14","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-14","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-15","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-16","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-01","fecha":"2026-01-16","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-19","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-19","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-19","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-20","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-20","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-22","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-01","fecha":"2026-01-25","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-26","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-26","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-01","fecha":"2026-01-26","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-27","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-27","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-29","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-29","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-29","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-29","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-30","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-01","fecha":"2026-01-30","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-01","fecha":"2026-01-30","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-01","fecha":"2026-01-30","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-31","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-31","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-01","fecha":"2026-01-31","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-01","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-02","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-03","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-03","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-04","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-02","fecha":"2026-02-04","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-02","fecha":"2026-02-04","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-02","fecha":"2026-02-07","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-07","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-09","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-10","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-10","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-10","plan":"Básico","cuota":"MENSUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-11","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-11","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-12","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-13","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-13","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-13","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-14","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-14","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-16","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-16","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-17","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-17","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-19","plan":"Básico","cuota":"MENSUAL","pago":"Caja","estado":"BAJA"},{"mes":"2026-02","fecha":"2026-02-19","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-20","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-20","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-20","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-20","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-20","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-24","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-02","fecha":"2026-02-24","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-25","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-25","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-26","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-26","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-02","fecha":"2026-02-27","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-27","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-27","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-27","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-28","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-28","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-02","fecha":"2026-02-28","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-02","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-02","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-02","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-02","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-03","fecha":"2026-03-03","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-03","fecha":"2026-03-03","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-03","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-04","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-04","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-07","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-07","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-08","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-11","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-03","fecha":"2026-03-11","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-12","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-12","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-12","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-03","fecha":"2026-03-13","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-15","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-15","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-03","fecha":"2026-03-15","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-15","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-15","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-16","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-16","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-18","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-18","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-20","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-23","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-23","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-23","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"BAJA"},{"mes":"2026-03","fecha":"2026-03-23","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-25","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-28","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-28","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-29","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-30","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-31","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-31","plan":"Básico","cuota":"MENSUAL","pago":"Caja","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-31","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-01","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-03","fecha":"2026-03-29","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-01","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-01","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-01","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-01","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-01","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-02","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-02","plan":"Ausencia","cuota":"ANUAL","pago":"Tarjeta","estado":"AUSENTE"},{"mes":"2026-04","fecha":"2026-04-02","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-02","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-03","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-04","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-04","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-05","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-06","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-07","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-07","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-07","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-07","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-07","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-07","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-09","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-09","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-10","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-10","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-12","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-12","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-13","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-13","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-13","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-13","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-13","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-13","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-14","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-14","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-14","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-14","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-14","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-15","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-15","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-16","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2025-09","fecha":"2025-09-05","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-16","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-16","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-17","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-17","plan":"Básico","cuota":"MENSUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-17","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-17","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-18","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-18","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-18","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-18","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-20","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-20","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-21","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-21","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-21","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-21","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-21","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-21","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-23","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-25","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-25","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-25","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-26","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-27","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-27","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-27","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-28","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-29","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-29","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-29","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-29","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-30","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-30","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-30","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-30","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-04","fecha":"2026-04-30","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-01","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-02","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-02","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-02","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-04","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-04","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-05","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-05","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-05","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-07","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-07","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-08","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-08","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-08","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-08","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-09","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-11","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-11","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-12","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-12","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-13","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-14","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-14","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-14","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-19","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-20","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-20","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-20","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-20","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-20","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-21","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-23","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-24","plan":"Básico","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-25","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-25","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-25","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-26","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-26","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-26","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-26","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-26","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-27","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-28","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-29","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-29","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-29","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-29","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-30","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-31","plan":"Resultados","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-31","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-31","plan":"Básico","cuota":"MENSUAL","pago":"OpenPay Recurrente","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-31","plan":"Básico","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2026-05","fecha":"2026-05-31","plan":"Resultados","cuota":"SEMESTRAL","pago":"Tarjeta","estado":"ACTIVO"},{"mes":"2025-07","fecha":"2025-07-18","plan":"Resultados","cuota":"ANUAL","pago":"Tarjeta","estado":"ACTIVO"}];
 const MESES=["2025-03","2025-04","2025-05","2025-06","2025-07","2025-08","2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05"];
 const ML={"2025-03":"Mar 25","2025-04":"Abr 25","2025-05":"May 25","2025-06":"Jun 25","2025-07":"Jul 25","2025-08":"Ago 25","2025-09":"Sep 25","2025-10":"Oct 25","2025-11":"Nov 25","2025-12":"Dic 25","2026-01":"Ene 26","2026-02":"Feb 26","2026-03":"Mar 26","2026-04":"Abr 26","2026-05":"May 26"};
 const CP={"Básico":"#185fa5","Resultados":"#1d9e75","Ausencia":"#d3d1c7"};
 const CC={"MENSUAL":"#185fa5","SEMESTRAL":"#1d9e75","ANUAL":"#534ab7","TRIMESTRAL":"#ba7517","BIMESTRAL":"#888780"};
 const CPG={"Tarjeta":"#185fa5","OpenPay Recurrente":"#1d9e75","Caja":"#888780","N/A":"#d3d1c7"};
-
 let tR='n',tM='n',curDim='plan';
 let CH={};
 
-function getF(){
-  const desde=document.getElementById('fDesde').value;
-  const hasta=document.getElementById('fHasta').value;
-  const plan=document.getElementById('fPlan').value;
-  const cuota=document.getElementById('fCuota').value;
-  const pago=document.getElementById('fPago').value;
-  const estado=document.getElementById('fEstado').value;
+function gF(){
+  const d=document.getElementById('fD').value,h=document.getElementById('fH').value;
+  const p=document.getElementById('fP').value,c=document.getElementById('fC').value;
+  const g=document.getElementById('fG').value,e=document.getElementById('fE').value;
   return ROWS.filter(r=>{
-    if(desde&&r.fecha<desde)return false;
-    if(hasta&&r.fecha>hasta)return false;
-    if(plan&&r.plan!==plan)return false;
-    if(cuota&&r.cuota!==cuota)return false;
-    if(pago&&r.pago!==pago)return false;
-    if(estado&&r.estado!==estado)return false;
+    if(d && r.fecha < d) return false;
+    if(h && r.fecha > h) return false;
+    if(p && r.plan !== p) return false;
+    if(c && r.cuota !== c) return false;
+    if(g && r.pago !== g) return false;
+    if(e && r.estado !== e) return false;
     return true;
   });
 }
-
-function getFnoEstado(){
-  const desde=document.getElementById('fDesde').value;
-  const hasta=document.getElementById('fHasta').value;
-  const plan=document.getElementById('fPlan').value;
-  const cuota=document.getElementById('fCuota').value;
-  const pago=document.getElementById('fPago').value;
+function gFk(){
+  const d=document.getElementById('fD').value,h=document.getElementById('fH').value;
+  const p=document.getElementById('fP').value,c=document.getElementById('fC').value;
+  const g=document.getElementById('fG').value;
   return ROWS.filter(r=>{
-    if(desde&&r.fecha<desde)return false;
-    if(hasta&&r.fecha>hasta)return false;
-    if(plan&&r.plan!==plan)return false;
-    if(cuota&&r.cuota!==cuota)return false;
-    if(pago&&r.pago!==pago)return false;
+    if(d && r.fecha < d) return false;
+    if(h && r.fecha > h) return false;
+    if(p && r.plan !== p) return false;
+    if(c && r.cuota !== c) return false;
+    if(g && r.pago !== g) return false;
     return true;
   });
 }
-
-function getMeses(rows){
-  const present=new Set(rows.map(r=>r.mes));
-  return MESES.filter(m=>present.has(m));
+function gMeses(rows){
+  const s=new Set(rows.map(r=>r.mes));
+  return MESES.filter(m=>s.has(m));
 }
-
-function getMon(rows){
-  return getMeses(rows).map(m=>{
+function gMon(rows){
+  return gMeses(rows).map(m=>{
     const s=rows.filter(r=>r.mes===m);
     const n=s.length,b=s.filter(r=>r.estado==='BAJA').length;
     return{m,lbl:ML[m],n,b,net:n-b};
   });
 }
-
-function countBy(rows,key){
-  const out={};
-  rows.forEach(r=>{const v=r[key]||'N/A';out[v]=(out[v]||0)+1;});
-  return out;
+function cBy(rows,key){
+  const o={};
+  rows.forEach(r=>{const v=r[key]||'N/A';o[v]=(o[v]||0)+1;});
+  return o;
 }
-
 function mkC(id,cfg){
   if(CH[id]){CH[id].destroy();delete CH[id];}
   const el=document.getElementById(id);
-  if(el)CH[id]=new Chart(el,cfg);
+  if(el) CH[id]=new Chart(el,cfg);
 }
-
 function donut(id,data,cmap,legId){
   const keys=Object.keys(data).sort((a,b)=>data[b]-data[a]);
   const tot=Object.values(data).reduce((s,v)=>s+v,0)||1;
-  mkC(id,{type:'doughnut',data:{labels:keys,datasets:[{data:keys.map(k=>data[k]),backgroundColor:keys.map(k=>cmap[k]||'#888'),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.parsed} (${Math.round(ctx.parsed/tot*100)}%)`}}}}});
+  mkC(id,{type:'doughnut',data:{labels:keys,datasets:[{data:keys.map(k=>data[k]),backgroundColor:keys.map(k=>cmap[k]||'#888'),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.label+': '+ctx.parsed+' ('+Math.round(ctx.parsed/tot*100)+'%)' }}}}});
   const el=document.getElementById(legId);
-  if(el)el.innerHTML=keys.map(k=>`<span><span style="width:9px;height:9px;border-radius:2px;background:${cmap[k]||'#888'};flex-shrink:0;display:inline-block"></span><span>${k.replace('OpenPay Recurrente','OpenPay')}</span><span class="dv">${data[k]} <span style="color:var(--color-text-tertiary);font-weight:400">${Math.round(data[k]/tot*100)}%</span></span></span>`).join('');
+  if(!el) return;
+  el.innerHTML=keys.map(k=>'<span><span style="width:9px;height:9px;border-radius:2px;background:'+(cmap[k]||'#888')+';flex-shrink:0;display:inline-block"></span><span>'+k.replace('OpenPay Recurrente','OpenPay')+'</span><span class="dv">'+data[k]+' <span style="color:var(--tx3);font-weight:400">'+Math.round(data[k]/tot*100)+'%</span></span></span>').join('');
 }
-
-function updateInfo(){
-  const rows=getF();
-  document.getElementById('filterInfo').textContent=`${rows.length} registros en el rango seleccionado`;
+function uInfo(){
+  const rows=gF();
+  document.getElementById('fInfo').textContent=rows.length+' registros en el rango seleccionado';
 }
-
-function clearFilters(){
-  document.getElementById('fDesde').value='2025-03-01';
-  document.getElementById('fHasta').value='2026-05-31';
-  document.getElementById('fPlan').value='';
-  document.getElementById('fCuota').value='';
-  document.getElementById('fPago').value='';
-  document.getElementById('fEstado').value='';
+function clrF(){
+  document.getElementById('fD').value='2025-03-01';
+  document.getElementById('fH').value='2026-05-31';
+  document.getElementById('fP').value='';
+  document.getElementById('fC').value='';
+  document.getElementById('fG').value='';
+  document.getElementById('fE').value='';
   renderAll();
 }
-
 function show(v){
-  ['resumen','mensual','mix','tabla'].forEach(x=>{
+  ['r','m','x','t'].forEach(x=>{
     document.getElementById('v-'+x).style.display=x===v?'':'none';
     document.getElementById('t-'+x).classList.toggle('on',x===v);
   });
 }
-
-function setT(view,m){
-  if(view==='r'){tR=m;document.getElementById('tg-rn').classList.toggle('on',m==='n');document.getElementById('tg-rp').classList.toggle('on',m==='p');renderResumen();}
-  if(view==='m'){tM=m;document.getElementById('tg-mn').classList.toggle('on',m==='n');document.getElementById('tg-mp').classList.toggle('on',m==='p');renderMensual();}
+function sT(view,m){
+  if(view==='r'){tR=m;document.getElementById('rn').classList.toggle('on',m==='n');document.getElementById('rp').classList.toggle('on',m==='p');rR();}
+  if(view==='m'){tM=m;document.getElementById('mn').classList.toggle('on',m==='n');document.getElementById('mp').classList.toggle('on',m==='p');rM();}
 }
-
-function setDim(d){
+function sDim(d){
   curDim=d;
-  ['plan','cuota','pago'].forEach(x=>document.getElementById('dim-'+x).classList.toggle('on',x===d));
-  renderMix();
+  ['dp','dc','dg'].forEach((x,i)=>document.getElementById(x).classList.toggle('on',['plan','cuota','pago'][i]===d));
+  rX();
 }
 
-function renderResumen(){
-  const rows=getF();
-  const kpiRows=getFnoEstado();
-  const tot=kpiRows.length,act=kpiRows.filter(r=>r.estado==='ACTIVO').length,baj=kpiRows.filter(r=>r.estado==='BAJA').length;
+function rR(){
+  const rows=gF(), kr=gFk();
+  const tot=kr.length,act=kr.filter(r=>r.estado==='ACTIVO').length,baj=kr.filter(r=>r.estado==='BAJA').length;
   const ret=tot?Math.round(act/tot*100):0;
-  const men=kpiRows.filter(r=>r.cuota==='MENSUAL').length;
-  const sem=kpiRows.filter(r=>r.cuota==='SEMESTRAL').length;
-  const anu=kpiRows.filter(r=>r.cuota==='ANUAL').length;
-  const bas=kpiRows.filter(r=>r.plan==='Básico').length;
-  const res=kpiRows.filter(r=>r.plan==='Resultados').length;
-  const mon=getMon(kpiRows);
-  let ac=0;mon.forEach(d=>{ac+=d.net;d.ac=ac;});
+  const men=kr.filter(r=>r.cuota==='MENSUAL').length;
+  const sem=kr.filter(r=>r.cuota==='SEMESTRAL').length;
+  const anu=kr.filter(r=>r.cuota==='ANUAL').length;
+  const bas=kr.filter(r=>r.plan==='Básico').length;
+  const res=kr.filter(r=>r.plan==='Resultados').length;
+  const mon=gMon(kr);let ac=0;mon.forEach(d=>{ac+=d.net;d.ac=ac;});
   const best=mon.length?mon.reduce((a,b)=>b.n>a.n?b:a,mon[0]):{n:0,lbl:'-'};
-  document.getElementById('kpis-r').innerHTML=`
-    <div class="kc ag"><p class="kl">Activos</p><p class="kv g">${act}</p><p class="ks">de ${tot} registros</p></div>
-    <div class="kc ar"><p class="kl">Bajas</p><p class="kv r">${baj}</p><p class="ks">${tot?Math.round(baj/tot*100):0}% del total</p></div>
-    <div class="kc"><p class="kl">Retención</p><p class="kv">${ret}%</p><p class="ks">activos / total</p></div>
-    <div class="kc"><p class="kl">Mejor mes</p><p class="kv b">${best.n}</p><p class="ks">altas · ${best.lbl}</p></div>
-    <div class="kc"><p class="kl">Mensual</p><p class="kv">${men}</p><p class="ks">${tot?Math.round(men/tot*100):0}%</p></div>
-    <div class="kc"><p class="kl">Semestral</p><p class="kv">${sem}</p><p class="ks">${tot?Math.round(sem/tot*100):0}%</p></div>
-    <div class="kc"><p class="kl">Anual</p><p class="kv">${anu}</p><p class="ks">${tot?Math.round(anu/tot*100):0}%</p></div>
-    <div class="kc ab"><p class="kl">Básico</p><p class="kv">${bas}</p><p class="ks">${tot?Math.round(bas/tot*100):0}%</p></div>
-    <div class="kc"><p class="kl">Resultados</p><p class="kv">${res}</p><p class="ks">${tot?Math.round(res/tot*100):0}%</p></div>`;
-  const monF=getMon(rows);let acF=0;monF.forEach(d=>{acF+=d.net;d.ac=acF;});
+  document.getElementById('kpis').innerHTML=
+    '<div class="kc ag"><p class="kl">Activos</p><p class="kv g">'+act+'</p><p class="ks">de '+tot+' registros</p></div>'+
+    '<div class="kc ar"><p class="kl">Bajas</p><p class="kv r">'+baj+'</p><p class="ks">'+(tot?Math.round(baj/tot*100):0)+'% del total</p></div>'+
+    '<div class="kc"><p class="kl">Retención</p><p class="kv">'+ret+'%</p><p class="ks">activos / total</p></div>'+
+    '<div class="kc"><p class="kl">Mejor mes</p><p class="kv b">'+best.n+'</p><p class="ks">altas · '+best.lbl+'</p></div>'+
+    '<div class="kc"><p class="kl">Mensual</p><p class="kv">'+men+'</p><p class="ks">'+(tot?Math.round(men/tot*100):0)+'%</p></div>'+
+    '<div class="kc"><p class="kl">Semestral</p><p class="kv">'+sem+'</p><p class="ks">'+(tot?Math.round(sem/tot*100):0)+'%</p></div>'+
+    '<div class="kc"><p class="kl">Anual</p><p class="kv">'+anu+'</p><p class="ks">'+(tot?Math.round(anu/tot*100):0)+'%</p></div>'+
+    '<div class="kc ab"><p class="kl">Básico</p><p class="kv">'+bas+'</p><p class="ks">'+(tot?Math.round(bas/tot*100):0)+'%</p></div>'+
+    '<div class="kc"><p class="kl">Resultados</p><p class="kv">'+res+'</p><p class="ks">'+(tot?Math.round(res/tot*100):0)+'%</p></div>';
+  const monF=gMon(rows);let acF=0;monF.forEach(d=>{acF+=d.net;d.ac=acF;});
   const p=tR==='p',tN=monF.reduce((s,d)=>s+d.n,0)||1,tB=monF.reduce((s,d)=>s+d.b,0)||1;
-  const labels25=monF.filter(d=>d.m.startsWith('2025'));
   mkC('cR',{type:'bar',data:{labels:monF.map(d=>d.lbl),datasets:[
     {type:'bar',label:'Altas',data:monF.map(d=>p?Math.round(d.n/tN*100):d.n),backgroundColor:'#b5d4f4',borderColor:'#185fa5',borderWidth:1,borderRadius:3},
     {type:'bar',label:'Bajas',data:monF.map(d=>p?Math.round(d.b/tB*100):d.b),backgroundColor:'#f7c1c1',borderColor:'#a32d2d',borderWidth:1,borderRadius:3},
     {type:'line',label:'Acumulado',data:monF.map(d=>d.ac),borderColor:'#1d9e75',backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:.3,yAxisID:'y2'}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(128,128,128,.07)'},ticks:{callback:v=>p?v+'%':v,font:{size:11}}},y2:{position:'right',grid:{drawOnChartArea:false},ticks:{font:{size:11}}},x:{grid:{display:false},ticks:{autoSkip:false,maxRotation:45,font:{size:11}}}}}});
-  const el=document.getElementById('donuts-r');
-  el.innerHTML=`<div class="dc"><p class="dt"><i class="ti ti-id-badge"></i>Por plan</p><div class="cw" style="height:110px"><canvas id="cDP"></canvas></div><div class="dl" id="lDP"></div></div><div class="dc"><p class="dt"><i class="ti ti-calendar-repeat"></i>Por frecuencia</p><div class="cw" style="height:110px"><canvas id="cDC"></canvas></div><div class="dl" id="lDC"></div></div><div class="dc"><p class="dt"><i class="ti ti-credit-card"></i>Por forma de pago</p><div class="cw" style="height:110px"><canvas id="cDG"></canvas></div><div class="dl" id="lDG"></div></div>`;
-  requestAnimationFrame(()=>{donut('cDP',countBy(rows,'plan'),CP,'lDP');donut('cDC',countBy(rows,'cuota'),CC,'lDC');donut('cDG',countBy(rows,'pago'),CPG,'lDG');});
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(128,128,128,.07)'},ticks:{callback:function(v){return p?v+'%':v;},font:{size:11}}},y2:{position:'right',grid:{drawOnChartArea:false},ticks:{font:{size:11}}},x:{grid:{display:false},ticks:{autoSkip:false,maxRotation:45,font:{size:11}}}}}});
+  const el=document.getElementById('dnR');
+  el.innerHTML='<div class="dc"><p class="dt"><i class="ti ti-id-badge"></i>Por plan</p><div class="cw" style="height:110px"><canvas id="cDP"></canvas></div><div class="dl" id="lDP"></div></div><div class="dc"><p class="dt"><i class="ti ti-calendar-repeat"></i>Por frecuencia</p><div class="cw" style="height:110px"><canvas id="cDC"></canvas></div><div class="dl" id="lDC"></div></div><div class="dc"><p class="dt"><i class="ti ti-credit-card"></i>Por forma de pago</p><div class="cw" style="height:110px"><canvas id="cDG"></canvas></div><div class="dl" id="lDG"></div></div>';
+  requestAnimationFrame(function(){donut('cDP',cBy(rows,'plan'),CP,'lDP');donut('cDC',cBy(rows,'cuota'),CC,'lDC');donut('cDG',cBy(rows,'pago'),CPG,'lDG');});
 }
 
-function renderMensual(){
-  const rows=getF(),mon=getMon(rows),p=tM==='p';
+function rM(){
+  const rows=gF(),mon=gMon(rows),p=tM==='p';
   mkC('cM',{type:'bar',data:{labels:mon.map(d=>d.lbl),datasets:[
     {type:'bar',label:'Altas',data:mon.map(d=>p?Math.round(d.n/Math.max(d.n+d.b,1)*100):d.n),backgroundColor:'#b5d4f4',borderColor:'#185fa5',borderWidth:1,borderRadius:3},
     {type:'bar',label:'Bajas',data:mon.map(d=>p?-Math.round(d.b/Math.max(d.n+d.b,1)*100):-d.b),backgroundColor:'#f7c1c1',borderColor:'#a32d2d',borderWidth:1,borderRadius:3},
     {type:'line',label:'Neto',data:mon.map(d=>p?Math.round(d.net/Math.max(d.n+d.b,1)*100):d.net),borderColor:'#1d9e75',backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:.3}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(128,128,128,.07)'},ticks:{callback:v=>p?(v<0?v+'%':'+'+v+'%'):(v<0?v:'+'+v),font:{size:11}}},x:{grid:{display:false},ticks:{autoSkip:false,maxRotation:45,font:{size:11}}}}}});
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(128,128,128,.07)'},ticks:{callback:function(v){return p?(v<0?v+'%':'+'+v+'%'):(v<0?v:'+'+v);},font:{size:11}}},x:{grid:{display:false},ticks:{autoSkip:false,maxRotation:45,font:{size:11}}}}}});
   const rets=mon.map(d=>d.n>0?Math.round((1-d.b/d.n)*100):100);
-  mkC('cRet',{type:'line',data:{labels:mon.map(d=>d.lbl),datasets:[{label:'Retención %',data:rets,borderColor:'#1d9e75',backgroundColor:'rgba(29,158,117,.07)',fill:true,borderWidth:2,tension:.3,pointRadius:3,pointBackgroundColor:'#1d9e75'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:110,grid:{color:'rgba(128,128,128,.07)'},ticks:{callback:v=>v+'%',font:{size:11}}},x:{grid:{display:false},ticks:{autoSkip:false,maxRotation:45,font:{size:11}}}}}});
+  mkC('cRet',{type:'line',data:{labels:mon.map(d=>d.lbl),datasets:[{label:'Retención %',data:rets,borderColor:'#1d9e75',backgroundColor:'rgba(29,158,117,.07)',fill:true,borderWidth:2,tension:.3,pointRadius:3,pointBackgroundColor:'#1d9e75'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:110,grid:{color:'rgba(128,128,128,.07)'},ticks:{callback:function(v){return v+'%';},font:{size:11}}},x:{grid:{display:false},ticks:{autoSkip:false,maxRotation:45,font:{size:11}}}}}});
 }
 
-function renderMix(){
-  const rows=getF(),meses=getMeses(rows);
+function rX(){
+  const rows=gF(),meses=gMeses(rows);
   const CMAP=curDim==='plan'?CP:curDim==='cuota'?CC:CPG;
   const keys=[...new Set(rows.map(r=>r[curDim]))].filter(Boolean);
-  const datasets=keys.map(k=>(({label:k,data:meses.map(m=>{const s=rows.filter(r=>r.mes===m);return s.length?Math.round(s.filter(r=>r[curDim]===k).length/s.length*100):0;}),backgroundColor:CMAP[k]||'#888',borderWidth:0}))).filter(ds=>ds.data.some(v=>v>0));
-  document.getElementById('lStack').innerHTML=datasets.map(ds=>`<span><span class="ld" style="background:${ds.backgroundColor}"></span>${ds.label.replace('OpenPay Recurrente','OpenPay')}</span>`).join('');
-  mkC('cStack',{type:'bar',data:{labels:meses.map(m=>ML[m]),datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,grid:{display:false},ticks:{autoSkip:false,maxRotation:45,font:{size:11}}},y:{stacked:true,max:100,grid:{color:'rgba(128,128,128,.07)'},ticks:{callback:v=>v+'%',font:{size:11}}}}}});
-  const el=document.getElementById('donuts-m');
-  el.innerHTML=`<div class="dc"><p class="dt"><i class="ti ti-id-badge"></i>Por plan</p><div class="cw" style="height:110px"><canvas id="cMP"></canvas></div><div class="dl" id="lMP"></div></div><div class="dc"><p class="dt"><i class="ti ti-calendar-repeat"></i>Por frecuencia</p><div class="cw" style="height:110px"><canvas id="cMC"></canvas></div><div class="dl" id="lMC"></div></div><div class="dc"><p class="dt"><i class="ti ti-credit-card"></i>Por forma de pago</p><div class="cw" style="height:110px"><canvas id="cMG"></canvas></div><div class="dl" id="lMG"></div></div>`;
-  requestAnimationFrame(()=>{donut('cMP',countBy(rows,'plan'),CP,'lMP');donut('cMC',countBy(rows,'cuota'),CC,'lMC');donut('cMG',countBy(rows,'pago'),CPG,'lMG');});
+  const datasets=keys.map(function(k){return{label:k,data:meses.map(function(m){var s=rows.filter(function(r){return r.mes===m;});return s.length?Math.round(s.filter(function(r){return r[curDim]===k;}).length/s.length*100):0;}),backgroundColor:CMAP[k]||'#888',borderWidth:0};}).filter(function(ds){return ds.data.some(function(v){return v>0;});});
+  document.getElementById('lSt').innerHTML=datasets.map(function(ds){return '<span><span class="ld" style="background:'+ds.backgroundColor+'"></span>'+ds.label.replace('OpenPay Recurrente','OpenPay')+'</span>';}).join('');
+  mkC('cSt',{type:'bar',data:{labels:meses.map(function(m){return ML[m];}),datasets:datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,grid:{display:false},ticks:{autoSkip:false,maxRotation:45,font:{size:11}}},y:{stacked:true,max:100,grid:{color:'rgba(128,128,128,.07)'},ticks:{callback:function(v){return v+'%';},font:{size:11}}}}}});
+  const el=document.getElementById('dnX');
+  el.innerHTML='<div class="dc"><p class="dt"><i class="ti ti-id-badge"></i>Por plan</p><div class="cw" style="height:110px"><canvas id="cXP"></canvas></div><div class="dl" id="lXP"></div></div><div class="dc"><p class="dt"><i class="ti ti-calendar-repeat"></i>Por frecuencia</p><div class="cw" style="height:110px"><canvas id="cXC"></canvas></div><div class="dl" id="lXC"></div></div><div class="dc"><p class="dt"><i class="ti ti-credit-card"></i>Por forma de pago</p><div class="cw" style="height:110px"><canvas id="cXG"></canvas></div><div class="dl" id="lXG"></div></div>';
+  requestAnimationFrame(function(){donut('cXP',cBy(rows,'plan'),CP,'lXP');donut('cXC',cBy(rows,'cuota'),CC,'lXC');donut('cXG',cBy(rows,'pago'),CPG,'lXG');});
 }
 
-function renderTabla(){
-  const rows=getF(),mon=getMon(rows);
+function rT(){
+  const rows=gF(),mon=gMon(rows);
   let ac=0;
-  document.getElementById('tbl-sub').textContent=`${rows.length} registros en el rango seleccionado`;
-  const html=mon.map(d=>{
+  document.getElementById('tSub').textContent=rows.length+' registros en el rango seleccionado';
+  var html=mon.map(function(d){
     ac+=d.net;
-    const ret=d.n>0?Math.round((1-d.b/d.n)*100):100;
-    const bc=ret>=80?'kg':ret>=60?'ka':'kr';
-    const yr=d.m.startsWith('2026')?'26':'25';
-    return `<tr><td style="font-weight:500">${d.lbl}</td><td style="text-align:right"><span style="font-size:10px;padding:2px 6px;border-radius:20px;background:${yr==='26'?'#e6f1fb':'#eaf3de'};color:${yr==='26'?'#0c447c':'#27500a'}">${yr==='26'?'2026':'2025'}</span></td><td style="text-align:right;color:#185fa5;font-weight:500">+${d.n}</td><td style="text-align:right;color:#a32d2d;font-weight:500">${d.b}</td><td style="text-align:right;color:${d.net>=0?'#0f6e56':'#a32d2d'};font-weight:500">${d.net>=0?'+':''}">${d.net}</td><td style="text-align:right;color:var(--color-text-secondary)">${ac}</td><td style="text-align:right"><span class="kpill ${bc}">${ret}%</span></td></tr>`;
+    var ret=d.n>0?Math.round((1-d.b/d.n)*100):100;
+    var bc=ret>=80?'pg':ret>=60?'pa':'pr';
+    var yr=d.m.startsWith('2026')?'2026':'2025';
+    var yrBg=yr==='2026'?'#e6f1fb':'#eaf3de';
+    var yrCl=yr==='2026'?'#0c447c':'#27500a';
+    var netCl=d.net>=0?'#0f6e56':'#a32d2d';
+    var netSign=d.net>=0?'+':'';
+    return '<tr><td style="font-weight:500">'+d.lbl+'</td><td style="text-align:right"><span style="font-size:10px;padding:2px 6px;border-radius:20px;background:'+yrBg+';color:'+yrCl+'">'+yr+'</span></td><td style="text-align:right;color:#185fa5;font-weight:500">+'+d.n+'</td><td style="text-align:right;color:#a32d2d;font-weight:500">'+d.b+'</td><td style="text-align:right;color:'+netCl+';font-weight:500">'+netSign+d.net+'</td><td style="text-align:right;color:var(--tx2)">'+ac+'</td><td style="text-align:right"><span class="pill '+bc+'">'+ret+'%</span></td></tr>';
   }).join('');
-  document.getElementById('tblMain').innerHTML=`<thead><tr><th>Mes</th><th style="text-align:right">Año</th><th style="text-align:right">Altas</th><th style="text-align:right">Bajas</th><th style="text-align:right">Neto</th><th style="text-align:right">Acum.</th><th style="text-align:right">Retención*</th></tr></thead><tbody>${html||'<tr><td colspan="7" class="empty">Sin datos para el rango seleccionado</td></tr>'}</tbody>`;
+  document.getElementById('tbl').innerHTML='<thead><tr><th>Mes</th><th style="text-align:right">Año</th><th style="text-align:right">Altas</th><th style="text-align:right">Bajas</th><th style="text-align:right">Neto</th><th style="text-align:right">Acum.</th><th style="text-align:right">Retención*</th></tr></thead><tbody>'+(html||'<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--tx3)">Sin datos para el rango seleccionado</td></tr>')+'</tbody>';
 }
 
-function renderAll(){updateInfo();renderResumen();renderMensual();renderMix();renderTabla();}
+function renderAll(){uInfo();rR();rM();rX();rT();}
 
-['fDesde','fHasta','fPlan','fCuota','fPago','fEstado'].forEach(id=>{
+document.getElementById('fD').value='2025-03-01';
+document.getElementById('fH').value='2026-05-31';
+['fD','fH','fP','fC','fG','fE'].forEach(function(id){
   document.getElementById(id).addEventListener('change',renderAll);
 });
-
 renderAll();
 </script>
 </body>
